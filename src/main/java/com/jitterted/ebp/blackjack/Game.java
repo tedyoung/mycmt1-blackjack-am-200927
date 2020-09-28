@@ -41,11 +41,18 @@ public class Game {
   public void initialDeal() {
 
     // deal first round of cards, players first
-    playerHand.add(deck.draw());
-    dealerHand.add(deck.draw());
+    dealOneCardToEveryone();
 
     // deal next round of cards
-    playerHand.add(deck.draw());
+    dealOneCardToEveryone();
+  }
+
+  private void dealOneCardToEveryone() {
+    dealCardToPlayer();
+    dealCardToDealer();
+  }
+
+  private void dealCardToDealer() {
     dealerHand.add(deck.draw());
   }
 
@@ -55,25 +62,17 @@ public class Game {
     while (!playerBusted) {
       displayGameState();
       String playerChoice = inputFromPlayer().toLowerCase();
-      if (playerChoice.startsWith("s")) {
+      if (playerStands(playerChoice)) {
         break;
       }
-      if (playerChoice.startsWith("h")) {
-        playerHand.add(deck.draw());
-        if (handValueOf(playerHand) > 21) {
-          playerBusted = true;
-        }
+      if (playerHits(playerChoice)) {
+        playerBusted = playerHits(playerBusted);
       } else {
         System.out.println("You need to [H]it or [S]tand");
       }
     }
 
-    // Dealer makes its choice automatically based on a simple heuristic (<=16, hit, 17>stand)
-    if (!playerBusted) {
-      while (handValueOf(dealerHand) <= 16) {
-        dealerHand.add(deck.draw());
-      }
-    }
+    dealerPlays(playerBusted);
 
     displayFinalGameState();
 
@@ -88,6 +87,40 @@ public class Game {
     } else {
       System.out.println("You lost to the Dealer. 💸");
     }
+  }
+
+  private boolean playerHits(boolean playerBusted) {
+    dealCardToPlayer();
+    playerBusted = playerBusted(playerBusted);
+    return playerBusted;
+  }
+
+  private void dealCardToPlayer() {
+    playerHand.add(deck.draw());
+  }
+
+  private boolean playerBusted(boolean playerBusted) {
+    if (handValueOf(playerHand) > 21) {
+      playerBusted = true;
+    }
+    return playerBusted;
+  }
+
+  private void dealerPlays(boolean playerBusted) {
+    // Dealer makes its choice automatically based on a simple heuristic (<=16, hit, 17>stand)
+    if (!playerBusted) {
+      while (handValueOf(dealerHand) <= 16) {
+        dealCardToDealer();
+      }
+    }
+  }
+
+  private boolean playerHits(String playerChoice) {
+    return playerChoice.startsWith("h");
+  }
+
+  private boolean playerStands(String playerChoice) {
+    return playerChoice.startsWith("s");
   }
 
   public int handValueOf(List<Card> hand) {
