@@ -2,8 +2,8 @@ package com.jitterted.ebp.blackjack;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Iterator;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -44,11 +44,25 @@ public class HandValueAceTest {
   }
 
   private Hand createHandWithRanksOf(String... ranks) {
-    List<Card> cards = new ArrayList<>();
-    for (String rank : ranks) {
-      cards.add(new Card(DUMMY_SUIT, rank));
+    Deck stubDeck = new StubDeck(ranks);
+    Hand hand = new Hand();
+    for (int i = 0; i < ranks.length; i++) {
+      hand.drawCardFrom(stubDeck);
     }
-    return new Hand(cards);
+    return hand;
+  }
+
+  private static class StubDeck extends Deck {
+    private final Iterator<String> rankIterator;
+
+    private StubDeck(String... ranks) {
+      this.rankIterator = Arrays.stream(ranks).iterator();
+    }
+
+    @Override
+    public Card draw() {
+      return new Card(DUMMY_SUIT, rankIterator.next());
+    }
   }
 
 }

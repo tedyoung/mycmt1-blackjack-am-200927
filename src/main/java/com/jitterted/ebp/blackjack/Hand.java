@@ -13,10 +13,6 @@ public class Hand {
     cards = new ArrayList<>();
   }
 
-  public Hand(List<Card> initialList) {
-    cards = initialList;
-  }
-
   void drawCardFrom(Deck deck) {
     cards.add(deck.draw());
   }
